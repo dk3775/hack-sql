@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        // Sample NLP response containing English text and SQL query
+        const nlpResponse = `
+    Here is your SQL query:
+    UPDATE users SET age = 20 WHERE id = 1;
+    HELLO
+`;
+
+        // Regular expression to extract SQL query
+        const sqlRegex = /(SELECT|UPDATE|INSERT|DELETE|CREATE|DROP|ALTER|SET|SHOW|DESCRIBE|USE)\b[\s\S]+?;/i;
+
+        // Extract SQL query from the NLP response
+        const match = nlpResponse.match(sqlRegex);
+        const sqlQuery = match ? match[0] : '';
+
+        console.log(sqlQuery);
+
+    </script>
+</head>
+
+<body>
+    <i class="fa fa-rocket"></i>
+</body>
+
+</html>
