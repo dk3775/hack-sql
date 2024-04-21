@@ -10,21 +10,21 @@ function checkInput() {
 }
 
 let i = 0;
-const loaderElement = document.getElementById('loader');
-const chatMessages = document.getElementById('chat-messages');
-const userInput = document.getElementById('user-input');
+const loaderElement = document.getElementById("loader");
+const chatMessages = document.getElementById("chat-messages");
+const userInput = document.getElementById("user-input");
 
 function addUserMessage(message) {
-  const userMessage = document.createElement('div');
-  userMessage.className = 'message user-message';
+  const userMessage = document.createElement("div");
+  userMessage.className = "message user-message";
   userMessage.textContent = message;
   chatMessages.appendChild(userMessage);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 function addBotMessage(message) {
-  const botMessage = document.createElement('div');
-  botMessage.className = 'message bot-message';
+  const botMessage = document.createElement("div");
+  botMessage.className = "message bot-message";
 
   // const response = JSON.parse(messageWithLineBreaks);
   console.log(message);
@@ -33,78 +33,107 @@ function addBotMessage(message) {
   botMessage.innerText = filtered;
 
   const copyButton = createCopyButton(filtered);
-  // const runButton = createRunButton(filtered);
-  // botMessage.appendChild(runButton);
+  const runButton = createRunButton(filtered);
 
-
-
-  // Extract the SQL query from the JSON response
-
-
-  // Append the copy button to the bot message div
   botMessage.appendChild(copyButton);
-
   // Append the bot message div to the chat messages container
   chatMessages.appendChild(botMessage);
-
   // Scroll to the bottom of the chat messages container
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
-// Function to create a copy button
-// function createRunButton(message) {
-//   const runButton = document.createElement('run');
-//   runButton.innerHTML = '<i class="fa fa-rocket"></i>';
-//   runButton.className = 'class-button run-button';
-
-//   // Add click event listener to copy the message to clipboard
-//   runButton.addEventListener('click', function () {
-//     const sqlRegex = /(SELECT|UPDATE|INSERT|DELETE|CREATE|DROP|ALTER|SET|SHOW|DESCRIBE|USE)\b[\s\S]+?;/i;
-//     // Extract SQL query from the NLP response
-//     const match = message.match(sqlRegex);
-//     const sqlQuery = match ? match[0] : '';
-
-//     navigator.clipboard.writeText(sqlQuery)
-//       .then(() => {
-//         alert('Query running');
-//       })
-//       .catch(error => {
-//         console.error('Error running query:', error);
-//       });
-//   });
-
-//   return runButton;
-// }
 
 // Function to create a copy button
 function createCopyButton(message) {
-  const copyButton = document.createElement('button');
+  const copyButton = document.createElement("button");
   copyButton.innerHTML = '<i class="fa fa-copy"></i>';
-  copyButton.className = 'copy-button';
+  copyButton.className = "copy-button";
 
   // Add click event listener to copy the message to clipboard
-  copyButton.addEventListener('click', function () {
-    const sqlRegex = /(SELECT|UPDATE|INSERT|DELETE|CREATE|DROP|ALTER|SET|SHOW|DESCRIBE|USE)\b[\s\S]+?;/i;
+  copyButton.addEventListener("click", function () {
+    const sqlRegex =
+      /(SELECT|UPDATE|INSERT|DELETE|CREATE|DROP|ALTER|SET|SHOW|DESCRIBE|USE)\b[\s\S]+?;/i;
     // Extract SQL query from the NLP response
     const match = message.match(sqlRegex);
-    const sqlQuery = match ? match[0] : '';
+    const sqlQuery = match ? match[0] : "";
 
-    navigator.clipboard.writeText(sqlQuery)
+    navigator.clipboard
+      .writeText(sqlQuery)
       .then(() => {
-        alert('Message copied to clipboard');
+        alert("Message copied to clipboard");
       })
-      .catch(error => {
-        console.error('Error copying message to clipboard:', error);
+      .catch((error) => {
+        console.error("Error copying message to clipboard:", error);
       });
   });
 
   return copyButton;
 }
 
+// Function to create a run button
+function createRunButton(message) {
+  const runButton = document.createElement("button");
+  runButton.innerHTML = '<i class="fa fa-play"></i>';
+  runButton.className = "run-button";
+
+  // Add click event listener to run the SQL query
+  runButton.addEventListener("click", function () {
+    const sqlRegex =
+      /(SELECT|UPDATE|INSERT|DELETE|CREATE|DROP|ALTER|SET|SHOW|DESCRIBE|USE)\b[\s\S]+?;/i;
+    // Extract SQL query from the NLP response
+    const match = message.match(sqlRegex);
+    const sqlQuery = match ? match[0] : "";
+
+    $.ajax({
+      method: "POST",
+      url: "http://localhost:3000/api/query",
+      contentType: "application/json", // Set content type to JSON
+      data: JSON.stringify({ query: sqlQuery }), // Convert data to JSON format
+      success: function (data) {
+        console.log(data);
+        // Handle response data if needed
+      },
+      error: function (error) {
+        console.error("Error:", error);
+      },
+    });
+  });
+}
+
+function createRunButton(message) {
+  const runButton = document.createElement("button");
+  runButton.innerHTML = '<i class="fa fa-rocket"></i>';
+  runButton.className = "copy-button run-button btn";
+
+  // Add click event listener to copy the message to clipboard
+  runButton.addEventListener("click", function () {
+    const sqlRegex =
+      /(SELECT|UPDATE|INSERT|DELETE|CREATE|DROP|ALTER|SET|SHOW|DESCRIBE|USE)\b[\s\S]+?;/i;
+    // Extract SQL query from the NLP response
+    const match = message.match(sqlRegex);
+    const sqlQuery = match ? match[0] : "";
+
+    $.ajax({
+      method: "POST",
+      url: "http://localhost:3000/api/query",
+      contentType: "application/json", // Set content type to JSON
+      data: JSON.stringify({ query: sqlQuery }), // Convert data to JSON format
+      success: function (data) {
+        console.log(data);
+      },
+      error: function (error) {
+        console.error("Error:", error);
+      },
+    });
+  });
+
+  return runButton;
+}
+
 function sqlFilter(message) {
-  message = message.replace(/```sql|```/g, '');
+  message = message.replace(/```sql|```/g, "");
 
   // Parse newlines correctly
-  message = message.replace(/\\n/g, '<br>');
+  message = message.replace(/\\n/g, "<br>");
 
   console.log(message);
 
@@ -112,68 +141,32 @@ function sqlFilter(message) {
 }
 
 function clearChat() {
-  const chatMessages = document.getElementById('chat-messages');
-  chatMessages.innerHTML = ''; // Remove all messages
+  const chatMessages = document.getElementById("chat-messages");
+  chatMessages.innerHTML = ""; // Remove all messages
 }
 
-document.getElementById('submitButton').addEventListener('click', clearChat);
+document.getElementById("submitButton").addEventListener("click", clearChat);
 
-// function createCopyButton(message) {
-//   const copyButton = document.createElement('button');
-//   copyButton.className = 'copy-button';
-//   copyButton.innerHTML = '<i class="fa fa-copy"></i>'
-//   copyButton.addEventListener('click', function() {
-//     navigator.clipboard.writeText(message);
-//     alert('Message copied to clipboard: ' + message);
-//   });
-//   return copyButton;
-// }
-
-// function handleUserInput() {
-//   const message = userInput.value.trim();
-//   if (message !== '') {
-//     addUserMessage(message);
-//     addBotMessage(message);
-//     userInput.value = '';
-//   }
-// }
-
-//   document.getElementById('submitButton').addEventListener('click', function() {
-//     var schema = document.getElementById('inputText').value;
-//     fetch('http://localhost:3000/add-schema', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({ schema: schema })
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         console.log(data);
-//         // Handle response data if needed
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//     });
-// });
 $(document).ready(function () {
-  document.getElementById('submitButton').addEventListener('click', function () {
-    var schema = document.getElementById('inputText').value;
-    console.log(schema);
-    $.ajax({
-      method: 'POST',
-      url: 'http://localhost:3000/add-schema',
-      contentType: 'application/json', // Set content type to JSON
-      data: JSON.stringify({ schema: schema }), // Convert data to JSON format
-      success: function (data) {
-        console.log(data);
-        // Handle response data if needed
-      },
-      error: function (error) {
-        console.error('Error:', error);
-      }
+  document
+    .getElementById("submitButton")
+    .addEventListener("click", function () {
+      var schema = document.getElementById("inputText").value;
+      console.log(schema);
+      $.ajax({
+        method: "POST",
+        url: "http://localhost:3000/add-schema",
+        contentType: "application/json", // Set content type to JSON
+        data: JSON.stringify({ schema: schema }), // Convert data to JSON format
+        success: function (data) {
+          console.log(data);
+          // Handle response data if needed
+        },
+        error: function (error) {
+          console.error("Error:", error);
+        },
+      });
     });
-  });
 });
 
 function waitForAllElementsToExist(elementClass) {
@@ -188,31 +181,31 @@ function waitForAllElementsToExist(elementClass) {
   });
 }
 
-$('#user-input').on('keypress', function (event) {
-  if (event.key === 'Enter') {
-    loaderElement.style.display = 'inline-block';
-    let message = $('#user-input').val().trim();
+$("#user-input").on("keypress", function (event) {
+  if (event.key === "Enter") {
+    loaderElement.style.display = "inline-block";
+    let message = $("#user-input").val().trim();
     addUserMessage(message);
-    userInput.value = '';
-    if (message !== '') {
+    userInput.value = "";
+    if (message !== "") {
       $.ajax({
-        method: 'POST',
-        url: 'http://localhost:3000/get-completion',
-        contentType: 'application/json', // Set content type to JSON
+        method: "POST",
+        url: "http://localhost:3000/get-completion",
+        contentType: "application/json", // Set content type to JSON
         data: JSON.stringify({ prompt: message }), // Convert data to JSON string
         xhrFields: {
-          withCredentials: true // Include cookies in the request
+          withCredentials: true, // Include cookies in the request
         },
         crossDomain: true, // Enable cross-domain requests
         success: function (data) {
           addBotMessage(data);
-          $('#user-input').val('');
-          waitForAllElementsToExist('bot-message').then((newElements) => {
+          $("#user-input").val("");
+          waitForAllElementsToExist("bot-message").then((newElements) => {
             // Once all elements exist, hide the loader
-            loaderElement.style.display = 'none';
+            loaderElement.style.display = "none";
             i = newElements.length;
           });
-        }
+        },
       });
     }
   }
